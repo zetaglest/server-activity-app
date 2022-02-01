@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MegaGlest Active Game Status</string>
+    <string name="server_response">Server reponse: %1$s</string>
+</resources>
