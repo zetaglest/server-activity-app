@@ -8,18 +8,20 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        val getPlayMG = GetPlayMG()
-//        getPlayMG.getRaw(this)
+        setContentView(R.layout.activity_main)
+        val getPlayMG = GetPlayMG()
+        getPlayMG.getRaw(this)
 //        while (true) {
 //            viewModelScope.launch(Dispatchers.IO)  { getRaw() }
-            runBlocking { getRaw() }
-//            runBlocking {delay(60000)}
+//        runBlocking {
+//            getRaw()
+//            delay(60000)
+//        }
+
 //        }
     }
 
@@ -44,12 +46,11 @@ class MainActivity : AppCompatActivity() {
 
             //        val resultTextView: TextView = findViewById(R.id.textView)
             //        resultTextView.text = stringBody[tdCount+1].toString()
-            resultTextView.text = resultText
+            resultTextView?.text = resultText
             // println(stringBody)
         }
         else {
-//            resultTextView.text = context.getString(R.string.server_response, response.status.toString())
-            resultTextView.text = """Help!!"""
+            resultTextView?.text = getString(R.string.server_response, response.status.toString())
         }
         client.close()
     }
