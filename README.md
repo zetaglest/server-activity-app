@@ -1,4 +1,4 @@
-Android app that pops up a notification if there are playes on a server waiting 
-for a game
+Android app that emits a notification if there are players on a
+MegaGlest server waiting for a game
 
 Note: This app does not work yet!
