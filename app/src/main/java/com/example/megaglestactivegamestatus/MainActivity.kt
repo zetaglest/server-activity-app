@@ -16,6 +16,8 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private val cid = "c42"
@@ -48,28 +50,28 @@ class MainActivity : AppCompatActivity() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
-        // show the notification
-        // Located here temporarily for testing purposes only.
-        with(NotificationManagerCompat.from(this)) {
-            // notificationId is a unique int for each notification that you must define
-            notify(nid, builder.build())
-        }
-
        // val getPlayMG = GetPlayMG()
        // getPlayMG.getRaw(this)
-//        while (true) {
-//            viewModelScope.launch(Dispatchers.IO)  { getRaw() }
-//        runBlocking {
-//            getRaw()
-//            delay(60000)
-//        }
+        while (true) {
+            val isWaiting = getActivity()
+            if (isWaiting) {
+                // show the notification
+                with(NotificationManagerCompat.from(this)) {
+                    // notificationId is a unique int for each notification
+                    // that you must define
+                    notify(nid, builder.build())
+                }
+            }
+            runBlocking { delay(60000L) }
+        }
     }
 
-    private suspend fun getRaw() {
+    private fun getActivity(): Boolean {
         val client = HttpClient(CIO)
-        val response: HttpResponse = client.get("https://play.mg")
-        val stringBody: String = response.receive()
+        val response: HttpResponse = runBlocking {client.get("https://play.mg")}
+        val stringBody: String = runBlocking { response.receive() }
         val resultTextView: TextView = findViewById(R.id.textView)
+        var isWaiting = false
         if (response.status.toString().startsWith("200")) {
             //        resultTextView.text = response.status.toString()
 
@@ -80,7 +82,12 @@ class MainActivity : AppCompatActivity() {
             while (idx != -1) {
                 var tdCount = idx
                 repeat(5) { tdCount = stringBody.indexOf(td, tdCount) + td.length }
-                resultText += "\n" + stringBody[tdCount]
+                val playerCount = stringBody[tdCount]
+                if (playerCount != '0') {
+                    isWaiting = true
+                    break
+                }
+                resultText += "\n" + playerCount
                 idx = stringBody.indexOf(waitingStr, tdCount)
             }
 
@@ -93,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             resultTextView.text = getString(R.string.server_response, response.status.toString())
         }
         client.close()
+        return isWaiting
     }
 
     // For notifications, create a channel and set the importance
