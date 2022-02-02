@@ -1,7 +1,9 @@
 package com.example.megaglestactivegamestatus
 
+import android.app.NotificationChannel
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.*
@@ -29,7 +31,16 @@ class GetPlayMG: ViewModel() {
                 while (idx != -1) {
                     var tdCount = idx
                     repeat(5) { tdCount = stringBody.indexOf(td, tdCount) + td.length }
-                    resultText += "\n" + stringBody[tdCount]
+                    val playerCount = stringBody[tdCount]
+                    resultText += "\n" + playerCount
+//                    if (playerCount.toString().startsWith("0")) {
+                    //                        // show the notification
+//                        with(NotificationManagerCompat.from(this)) {
+//                            // notificationId is a unique int for each notification that you must define
+//                            notify(nid, builder.build())
+//                        }
+//                    }
+
                     idx = stringBody.indexOf(waitingStr, tdCount)
                 }
 
