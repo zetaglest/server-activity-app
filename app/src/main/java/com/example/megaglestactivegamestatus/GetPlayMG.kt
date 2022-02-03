@@ -46,7 +46,7 @@ class GetPlayMG: ViewModel() {
                      resultTextView.text =
                          context.getString(R.string.server_response, response.status.toString())
                  }
-                 delay(10000L)
+                 delay(60000L)
              }
          }
      }
