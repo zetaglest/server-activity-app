@@ -34,16 +34,9 @@ class AlertDetails(private val mainThread: Context) {
     // https://developer.android.com/guide/components/intents-filters#DeclareMutabilityPendingIntent
     // Avoids the warning: "Missing PendingIntent mutability flag [UnspecifiedImmutableFlag]"
     // https://developer.android.com/about/versions/12/behavior-changes-12#test-pending-intent
-    private fun getPendingFlag(): Int {
-        var pendingFlag = 0
-        if (Build.VERSION.SDK_INT >= 23) {
-            pendingFlag = FLAG_IMMUTABLE
-        }
-        return pendingFlag
-    }
-
+    private val pendingFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
     private val pendingIntent: PendingIntent =
-        PendingIntent.getActivity(mainThread, 0, intent, getPendingFlag())
+        PendingIntent.getActivity(mainThread, 0, intent, pendingFlag)
 
     // Set the notification content
     // https://developer.android.com/training/notify-user/build-notification#kts
