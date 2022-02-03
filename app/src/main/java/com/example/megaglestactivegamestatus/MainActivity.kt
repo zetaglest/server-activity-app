@@ -8,7 +8,6 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
@@ -23,15 +22,9 @@ class MainActivity : AppCompatActivity() {
         // to createNotificationChannel().
         alertDetails.createNotificationChannel()
 
-       // val getPlayMG = GetPlayMG()
-       // getPlayMG.getRaw(this)
-        while (true) {
-            val isWaiting = getActivity()
-            if (isWaiting) {
-                alertDetails.showNotification()
-            }
-            runBlocking { delay(60000L) }
-        }
+        val getPlayMG = GetPlayMG()
+
+        getPlayMG.getRaw(this, alertDetails)
     }
 
     private fun getActivity(): Boolean {

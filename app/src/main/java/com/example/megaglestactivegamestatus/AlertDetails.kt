@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -54,8 +53,8 @@ class AlertDetails(private val mainThread: Context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = Resources.getSystem().getString(R.string.channel_name)
-            val descriptionText = Resources.getSystem().getString(R.string.channel_description)
+            val name = mainThread.getString(R.string.channel_name)
+            val descriptionText = mainThread.getString(R.string.channel_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(channelID, name, importance).apply {
                 description = descriptionText

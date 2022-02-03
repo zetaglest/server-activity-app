@@ -1,9 +1,7 @@
 package com.example.megaglestactivegamestatus
 
-import android.app.NotificationChannel
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.*
@@ -12,49 +10,60 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GetPlayMG: ViewModel() {
-     fun getRaw(context: AppCompatActivity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val client = HttpClient(CIO)
-            val response: HttpResponse = client.get("https://play.mg")
-            val stringBody: String = response.receive()
-            val resultTextView: TextView = context.findViewById(R.id.textView)
-            if (response.status.toString().startsWith("200")) {
-                //        resultTextView.text = response.status.toString()
+     fun getRaw(context: AppCompatActivity, alertDetails: AlertDetails) {
+         viewModelScope.launch {
+             while (true) {
+                 val client = HttpClient(CIO)
+                 val response = getResponse(client)
+                 val stringBody: String = getReceive(response)
+                 client.close()
+                 val resultTextView: TextView = context.findViewById(R.id.textView)
+                 if (response.status.toString().startsWith("200")) {
+                     val waitingStr = ">waiting for players</td>"
+                     val td = "<td>"
+                     var idx = stringBody.indexOf(waitingStr)
+                     var resultText = ""
+                     while (idx != -1) {
+                         var tdCount = idx
+                         repeat(5) { tdCount = stringBody.indexOf(td, tdCount) + td.length }
+                         val playerCount = stringBody[tdCount]
+                         if (playerCount != '0') {
+                             resultText += "\n" + playerCount
+                             alertDetails.showNotification()
+                             break
+                         }
+                         resultText += "\n" + playerCount
+                         idx = stringBody.indexOf(waitingStr, tdCount)
+                     }
 
-                val waitingStr = ">waiting for players</td>"
-                val td = "<td>"
-                var idx = stringBody.indexOf(waitingStr)
-                var resultText = ""
-                while (idx != -1) {
-                    var tdCount = idx
-                    repeat(5) { tdCount = stringBody.indexOf(td, tdCount) + td.length }
-                    val playerCount = stringBody[tdCount]
-                    resultText += "\n" + playerCount
-//                    if (playerCount.toString().startsWith("0")) {
-                    //                        // show the notification
-//                        with(NotificationManagerCompat.from(this)) {
-//                            // notificationId is a unique int for each notification that you must define
-//                            notify(nid, builder.build())
-//                        }
-//                    }
+                     resultTextView.text = resultText
+                 } else {
+                     resultTextView.text =
+                         context.getString(R.string.server_response, response.status.toString())
+                 }
+                 delay(10000L)
+             }
+         }
+     }
 
-                    idx = stringBody.indexOf(waitingStr, tdCount)
-                }
-
-                //        val resultTextView: TextView = findViewById(R.id.textView)
-                //        resultTextView.text = stringBody[tdCount+1].toString()
-                resultTextView.text = resultText
-                // println(stringBody)
-            }
-            else {
-                resultTextView.text = context.getString(R.string.server_response, response.status.toString())//"""Server response: ${response.status}"""
-            }
-            client.close()
-//            delay(60000)
+    private suspend fun getResponse(client: HttpClient): HttpResponse {
+        val response: HttpResponse
+        withContext(Dispatchers.IO) {
+            response = client.get("https://play.mg")
         }
+        return response
     }
 
+    private suspend fun getReceive(response: HttpResponse): String {
+        val stringBody: String
+        withContext(Dispatchers.IO) {
+            stringBody = response.receive()
+        }
+        return stringBody
+    }
 }
